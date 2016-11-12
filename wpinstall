@@ -48,8 +48,7 @@ mysql_secure_installation --password="$MYSQL_ROOT_PWD" -D
 
 service apache2 restart
 #create database and user with the correct privilages
-mysql --user="root" --password="$MYSQL_ROOT_PWD" 
---execute="CREATE DATABASE wordpress; CREATE USER wordpressuser@localhost IDENTIFIED BY '${WPDBPASS}'; GRANT ALL PRIVILEGES ON wordpress.* TO wordpressuser@localhost; FLUSH PRIVILEGES;"
+mysql --user="root" --password="$MYSQL_ROOT_PWD" --execute="CREATE DATABASE wordpress; CREATE USER wordpressuser@localhost IDENTIFIED BY '${WPDBPASS}'; GRANT ALL PRIVILEGES ON wordpress.* TO wordpressuser@localhost; FLUSH PRIVILEGES;"
 # get the wordpress files
 
 wget http://wordpress.org/latest.tar.gz
