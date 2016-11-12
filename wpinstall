@@ -4,6 +4,18 @@ if [ $LOGNAME != "root" ]; then
         exit 1
 fi
 
+must_succeed() {
+	while true
+		do
+        	$1
+	        if [ $? == 0 ]; then
+			break
+		fi
+		echo
+        	echo "Please try again."
+		echo
+	done
+}
 # place the root mysql password here
 webroot=/var/www/html/
 
@@ -25,7 +37,7 @@ echo
 # create a ftp user and add to the ww-data group
 echo "Setting up ftp user..."
 useradd -d $webroot wpftpuser
-passwd wpftpuser
+must_succeed "passwd wpftpuser"
 usermod -a -G www-data wpftpuser
 
 apt-get update -y
@@ -45,12 +57,12 @@ tar xzvf latest.tar.gz
 
 #create config file
 cp wordpress/wp-config-sample.php wordpress/wp-config.php
-sed -ri "s/define('DB_NAME',.*/\define('DB_NAME', 'wordpress');/g" "wordpress/wp-config.php"
-sed -ri "s/define('DB_USER',.*/\define('DB_USER', 'wordpressuser');/g" "wordpress/wp-config.php"
-sed -ri "s/define('DB_PASSWORD',.*/\define('DB_PASSWORD', '${WPDBPASS}');/g" "wordpress/wp-config.php"
-sed -ri "s/define('DB_HOST',.*/\define('DB_HOST', 'localhost');/g" "wordpress/wp-config.php"
-sed -ri "s/define('DB_CHARSET',.*/\define('DB_CHARSET', 'utf8');/g" "wordpress/wp-config.php"
-sed -ri "s/define('DB_COLLATE',.*/\define('DB_COLLATE', '');/g" "wordpress/wp-config.php"
+sed "s/define('DB_NAME',.*/\define('DB_NAME', 'wordpress');/g" "wordpress/wp-config.php"
+sed "s/define('DB_USER',.*/\define('DB_USER', 'wordpressuser');/g" "wordpress/wp-config.php"
+sed "s/define('DB_PASSWORD',.*/\define('DB_PASSWORD', '${WPDBPASS}');/g" "wordpress/wp-config.php"
+sed "s/define('DB_HOST',.*/\define('DB_HOST', 'localhost');/g" "wordpress/wp-config.php"
+sed "s/define('DB_CHARSET',.*/\define('DB_CHARSET', 'utf8');/g" "wordpress/wp-config.php"
+sed "s/define('DB_COLLATE',.*/\define('DB_COLLATE', '');/g" "wordpress/wp-config.php"
 
 
 #move files to correct directory
