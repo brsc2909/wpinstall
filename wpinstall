@@ -47,7 +47,12 @@ mysqld --initialize
 mysql_secure_installation --password="$MYSQL_ROOT_PWD" -D
 
 #create database and user with the correct privilages
-mysql --user="root" --password="$MYSQL_ROOT_PWD" --execute="CREATE DATABASE wordpress; CREATE USER wordpressuser@localhost IDENTIFIED BY '${WPDBPASS}'; GRANT ALL PRIVILEGES ON wordpress.* TO wordpressuser@localhost; FLUSH PRIVILEGES;"
+mysql -u root -p$MYSQL_ROOT_PWD << EOF
+CREATE DATABASE wordpress; 
+CREATE USER wordpressuser@localhost IDENTIFIED BY '${WPDBPASS}'; 
+GRANT ALL PRIVILEGES ON wordpress.* TO wordpressuser@localhost; 
+FLUSH PRIVILEGES;
+EOF
 
 # get the wordpress files
 
