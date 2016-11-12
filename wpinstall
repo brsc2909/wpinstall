@@ -48,7 +48,7 @@ mysql_secure_installation --password="$MYSQL_ROOT_PWD" -D
 
 service apache2 restart
 #create database and user with the correct privilages
-mysql --user="root" --password="$MYSQL_ROOT_PWD" \
+mysql --user="root" --password="$MYSQL_ROOT_PWD" 
 --execute="CREATE DATABASE wordpress; CREATE USER wordpressuser@localhost IDENTIFIED BY '${WPDBPASS}'; GRANT ALL PRIVILEGES ON wordpress.* TO wordpressuser@localhost; FLUSH PRIVILEGES;"
 # get the wordpress files
 
@@ -57,12 +57,14 @@ tar xzvf latest.tar.gz
 
 #create config file
 cp wordpress/wp-config-sample.php wordpress/wp-config.php
-sed "s/define('DB_NAME',.*/\define('DB_NAME', 'wordpress');/g" "wordpress/wp-config.php"
-sed "s/define('DB_USER',.*/\define('DB_USER', 'wordpressuser');/g" "wordpress/wp-config.php"
-sed "s/define('DB_PASSWORD',.*/\define('DB_PASSWORD', '${WPDBPASS}');/g" "wordpress/wp-config.php"
-sed "s/define('DB_HOST',.*/\define('DB_HOST', 'localhost');/g" "wordpress/wp-config.php"
-sed "s/define('DB_CHARSET',.*/\define('DB_CHARSET', 'utf8');/g" "wordpress/wp-config.php"
-sed "s/define('DB_COLLATE',.*/\define('DB_COLLATE', '');/g" "wordpress/wp-config.php"
+mv wordpress/wp-config.php wordpress/wp-config.in
+sed "
+s/define('DB_NAME.*/define('DB_NAME', 'wordpress');/
+s/define('DB_USER.*/define('DB_USER', 'wordpressuser');/ 
+s/define('DB_PASSWORD.*/define('DB_PASSWORD', '${WPDBPASS}');/ 
+s/define('DB_HOST.*/define('DB_HOST', 'localhost');/
+s/define('DB_CHARSET.*/define('DB_CHARSET', 'utf8');/
+s/define('DB_COLLATE',.*/define('DB_COLLATE', '');/" wordpress/wp-config.in > wordpress/wp-config.php
 
 
 #move files to correct directory
