@@ -1,0 +1,132 @@
+#!/bin/bash
+if [ $LOGNAME != "root" ]; then
+        echo "Please run this script as root! The default password is ajtemp."
+        exit 1
+fi
+
+#what you want your new password to be
+WPDBPASS="password"
+
+# place the root mysql password here
+password="yourpass"
+webroot=/var/www/html/
+
+# create a ftp user and add to the ww-data group
+useradd -d $webroot wpftpuser
+passwd wpftpuser
+usermod -a -G www-data wpftpuser
+
+#
+mkdir /var/www/html/wp-content/uploads
+chown -R ubuntu:www-data /var/www/html/*
+chown -R :www-data /var/www/html/wp-content/uploads
+
+apt-get update -y
+apt-get install -y php7.0 mysql-server vsftpd apache2 libapache2-mod-php7.0 php7.0-mcrypt php5-gd libssh2-php
+
+mysql_install_db
+mysql_secure_installation
+
+service apache2 restart
+#create database and user with the correct privilages
+mysql --user="root" --password="$password" --execute="CREATE DATABASE wordpress; CREATE USER wordpressuser@localhost IDENTIFIED BY '$WPDBPASS'; GRANT ALL PRIVILEGES ON wordpress.* TO wordpressuser@localhost; FLUSH PRIVILEGES;"
+# get the wordpress files
+
+wget http://wordpress.org/latest.tar.gz
+tar xzvf latest.tar.gz
+
+#create config file
+cat << EOF >./testfile.php
+<?php
+/**
+ * The base configuration for WordPress
+ *
+ * The wp-config.php creation script uses this file during the
+ * installation. You don't have to use the web site, you can
+ * copy this file to "wp-config.php" and fill in the values.
+ *
+ * This file contains the following configurations:
+ *
+ * * MySQL settings
+ * * Secret keys
+ * * Database table prefix
+ * * ABSPATH
+ *
+ * @link https://codex.wordpress.org/Editing_wp-config.php
+ *
+ * @package WordPress
+ */
+
+// ** MySQL settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define('DB_NAME', 'wordpress');
+
+/** MySQL database username */
+define('DB_USER', 'wordpressuser');
+
+/** MySQL database password */
+define('DB_PASSWORD', '$WPDBPASS');
+
+/** MySQL hostname */
+define('DB_HOST', 'localhost');
+
+/** Database Charset to use in creating database tables. */
+define('DB_CHARSET', 'utf8');
+
+/** The Database Collate type. Don't change this if in doubt. */
+define('DB_COLLATE', '');
+
+/**#@+
+ * Authentication Unique Keys and Salts.
+ *
+ * Change these to different unique phrases!
+ * You can generate these using the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}
+ * You can change these at any point in time to invalidate all existing cookies. This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+define('AUTH_KEY',         'put your unique phrase here');
+define('SECURE_AUTH_KEY',  'put your unique phrase here');
+define('LOGGED_IN_KEY',    'put your unique phrase here');
+define('NONCE_KEY',        'put your unique phrase here');
+define('AUTH_SALT',        'put your unique phrase here');
+define('SECURE_AUTH_SALT', 'put your unique phrase here');
+define('LOGGED_IN_SALT',   'put your unique phrase here');
+define('NONCE_SALT',       'put your unique phrase here');
+
+/**#@-*/
+
+/**
+ * WordPress Database Table prefix.
+ *
+ * You can have multiple installations in one database if you give each
+ * a unique prefix. Only numbers, letters, and underscores please!
+ */
+\$table_prefix  = 'wp_';
+
+/**
+ * For developers: WordPress debugging mode.
+ *
+ * Change this to true to enable the display of notices during development.
+ * It is strongly recommended that plugin and theme developers use WP_DEBUG
+ * in their development environments.
+ *
+ * For information on other constants that can be used for debugging,
+ * visit the Codex.
+ *
+ * @link https://codex.wordpress.org/Debugging_in_WordPress
+ */
+define('WP_DEBUG', false);
+
+/* That's all, stop editing! Happy blogging. */
+
+/** Absolute path to the WordPress directory. */
+if ( !defined('ABSPATH') )
+	define('ABSPATH', dirname(__FILE__) . '/');
+
+/** Sets up WordPress vars and included files. */
+require_once(ABSPATH . 'wp-settings.php');
+EOF
+
+#move files to correct directory
+rsync -avP ~/wordpress/ /var/www/html/
