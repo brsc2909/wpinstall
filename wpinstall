@@ -1,6 +1,6 @@
 #!/bin/bash
 if [ $LOGNAME != "root" ]; then
-        echo "Please run this script as root!"
+        echo "Please run this script as root! use 'sudo su' to become root"
         exit 1
 fi
 
