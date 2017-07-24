@@ -1,7 +1,7 @@
 # wpinstall
 
 ## installation
-to install imply run the following code in you terminal as root. you can become rot by typing `sudo su`
+to install simply run the following code in you terminal as root. you can become rot by typing `sudo su`
 
 ```bash
 wget https://raw.githubusercontent.com/brsc2909/wpinstall/master/wpinstall
